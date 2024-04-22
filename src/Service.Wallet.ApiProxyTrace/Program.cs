@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -30,12 +31,68 @@ namespace Service.Wallet.ApiProxyTrace
             };
         }
 
+        private static string ReadEnvVariable(string name)
+        {
+            var value = Environment.GetEnvironmentVariable(name);
+            if (string.IsNullOrEmpty(value))
+            {
+                Console.WriteLine($"!!! Cannot read env variable: {name} !!!");
+                throw new Exception($"Cannot read env variable: {name}.");
+            }
+            return value;
+        }
+
         public static void Main(string[] args)
         {
             Console.Title = "MyJetWallet Service.Wallet.ApiProxyTrace";
 
-            Settings = SettingsReader.GetSettings<SettingsModel>(SettingsFileName);
+            Console.WriteLine();
+            Console.WriteLine("Env variables:");
+            Console.WriteLine("  'PROXY-HOST' - route request to host");
+            Console.WriteLine("  'TRACE-INDEX-PREFIX' - elk index prefix for trace");
+            Console.WriteLine("  'LOG-INDEX-PREFIX' - elk index prefix for logs");
+            Console.WriteLine("  'ELK-USER' - ELK user for auth");
+            Console.WriteLine("  'ELK-PASSWORD' - ELK password for auth");
+            Console.WriteLine("  'ELK-URL' - ELK api url address");
+            Console.WriteLine();
+            
+            var settingsExist = false;
+            try
+            {
+                Settings = SettingsReader.GetSettings<SettingsModel>(SettingsFileName);
+                Settings.ProxyHost = "https://simple.app";
+                settingsExist = !string.IsNullOrEmpty(Settings?.TraceIndexPrefix);
+            }
+            catch (Exception)
+            {
+            }
 
+            if (!settingsExist)
+            {
+                var settings = new SettingsModel()
+                {
+                    SeqServiceUrl = string.Empty,
+                    ZipkinUrl = string.Empty,
+                    ProxyHost = ReadEnvVariable("PROXY-HOST"),
+                    TraceIndexPrefix = ReadEnvVariable("TRACE-INDEX-PREFIX"),
+                    ElkLogs = new LogElkSettings()
+                    {
+                        IndexPrefix = ReadEnvVariable("LOG-INDEX-PREFIX"),
+                        User = ReadEnvVariable("ELK-USER"),
+                        Password = ReadEnvVariable("ELK-PASSWORD"),
+                        Urls = new Dictionary<string, string>()
+                        {
+                            {"1", ReadEnvVariable("ELK-URL")}
+                        }
+                    }
+                };
+
+                Settings = settings;
+            }
+
+            //Settings.TraceIndexPrefix = "proxy-trace";
+            Console.WriteLine($"Trace index prefix: {Settings.TraceIndexPrefix}");
+            
             using var loggerFactory = LogConfigurator.ConfigureElk_v2("MyJetWallet", Settings.SeqServiceUrl, Settings.ElkLogs);
 
             var logger = loggerFactory.CreateLogger<Program>();

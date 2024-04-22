@@ -20,7 +20,7 @@ namespace Service.Wallet.ApiProxyTrace.Services
         {
             var targetUri = BuildTargetUri(context.Request);
             
-            Console.WriteLine($"{context.Request.Method}:  {context.Request.Path} -->> {targetUri.ToString()}");
+            Console.WriteLine($"{context.Request.Method}:  {context.Request.Path} -->> {targetUri.ToString()}: ...");
 
             if (targetUri != null)
             {
@@ -30,6 +30,9 @@ namespace Service.Wallet.ApiProxyTrace.Services
                 context.Response.StatusCode = (int)responseMessage.StatusCode;
                 CopyFromTargetResponseHeaders(context, responseMessage);
                 await responseMessage.Content.CopyToAsync(context.Response.Body);
+                
+                Console.WriteLine($"{context.Request.Method}:  {context.Request.Path} -->> {targetUri.ToString()}: {responseMessage.StatusCode}");
+                
                 return;
             }
             Console.WriteLine($"Cannot handle CALL {context.Request.Method}:  {context.Request.Path}");

@@ -13,6 +13,9 @@ namespace Service.Wallet.ApiProxyTrace.Modules
                 .RegisterType<ApiTraceManager>()
                 .WithParameter("elkSettings", Program.Settings.ElkLogs)
                 .WithParameter("elkIndexPrefix", Program.Settings.TraceIndexPrefix)
+                .WithParameter("logger", Program.LogFactory.CreateLogger("ApiTraceManager"))
+                
+            
                 .As<IApiTraceManager>()
                 .As<IStartable>()
                 .AutoActivate()
