@@ -21,16 +21,6 @@ namespace Service.Wallet.ApiProxyTrace
 
         public static ILoggerFactory LogFactory { get; private set; }
 
-        public static Func<T> ReloadedSettings<T>(Func<SettingsModel, T> getter)
-        {
-            return () =>
-            {
-                var settings = SettingsReader.GetSettings<SettingsModel>(SettingsFileName);
-                var value = getter.Invoke(settings);
-                return value;
-            };
-        }
-
         private static string ReadEnvVariable(string name)
         {
             var value = Environment.GetEnvironmentVariable(name);
@@ -60,7 +50,7 @@ namespace Service.Wallet.ApiProxyTrace
             try
             {
                 Settings = SettingsReader.GetSettings<SettingsModel>(SettingsFileName);
-                //Settings.ProxyHost = "https://simple.app";
+                Settings.ProxyHost = "https://simple.app";
                 settingsExist = !string.IsNullOrEmpty(Settings?.TraceIndexPrefix);
             }
             catch (Exception)
@@ -93,7 +83,7 @@ namespace Service.Wallet.ApiProxyTrace
             //Settings.TraceIndexPrefix = "proxy-trace";
             Console.WriteLine($"Trace index prefix: {Settings.TraceIndexPrefix}");
             
-            using var loggerFactory = LogConfigurator.ConfigureElk_v2("MyJetWallet", Settings.SeqServiceUrl, Settings.ElkLogs);
+            using var loggerFactory = LogConfigurator.ConfigureElk_v2("MyJetWallet", Settings.SeqServiceUrl, null);
 
             var logger = loggerFactory.CreateLogger<Program>();
 

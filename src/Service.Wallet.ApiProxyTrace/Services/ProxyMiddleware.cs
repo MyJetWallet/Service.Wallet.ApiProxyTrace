@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -32,6 +33,13 @@ namespace Service.Wallet.ApiProxyTrace.Services
                 await responseMessage.Content.CopyToAsync(context.Response.Body);
                 
                 Console.WriteLine($"{context.Request.Method}:  {context.Request.Path} -->> {targetUri.ToString()}: {responseMessage.StatusCode}");
+
+                // Console.WriteLine("-----------------------");
+                //
+                // foreach (var header in targetRequestMessage.Headers)
+                // {
+                //     Console.WriteLine($"  {header.Key}: {header.Value.Aggregate((s,s1) => $"{s},{s1}")}");
+                // }
                 
                 return;
             }
@@ -82,12 +90,33 @@ namespace Service.Wallet.ApiProxyTrace.Services
                 !HttpMethods.IsTrace(requestMethod))
             {
                 var streamContent = new StreamContent(context.Request.Body);
+                if (!string.IsNullOrEmpty(context.Request.ContentType))
+                {
+                    streamContent.Headers.ContentType = MediaTypeHeaderValue.Parse(context.Request.ContentType);
+                }
+                Console.WriteLine($"--->>> {streamContent.Headers.ContentType}");
                 requestMessage.Content = streamContent;
             }
+            
+            
 
             foreach (var header in context.Request.Headers)
             {
-                requestMessage.Content?.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+                if (header.Key == "Content-Type")
+                {
+                    //Console.WriteLine($"!!CT: {header.Value.FirstOrDefault()}");
+                }
+                else if(header.Key == "Content-Length")
+                {
+                    //Console.WriteLine($"!!!CL: {header.Value.FirstOrDefault()}");
+                }
+                else
+                {
+                    requestMessage.Headers.Remove(header.Key);
+                    var res = requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+                    //Console.WriteLine($" --> {header.Key}: {header.Value.FirstOrDefault().Substring(0,10)} :: {res}");
+                }
+
             }
         }
         
