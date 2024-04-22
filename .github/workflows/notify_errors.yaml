@@ -1,0 +1,19 @@
+name: telegram message
+
+on: 
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Release API client nuget", "Build test", "Update nuget", "Release Service"]
+    types:
+      - completed
+
+jobs:
+  uat:
+    uses: MyJetWallet/DevOps/.github/workflows/telegram.yml@master
+    with:
+      conclusion: ${{ github.event.workflow_run.conclusion }}
+      repository: ${{ github.repository }}
+      workflow: ${{ github.event.workflow_run.workflow }}
+    secrets: 
+      TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}

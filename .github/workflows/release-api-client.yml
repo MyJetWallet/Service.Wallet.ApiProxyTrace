@@ -1,0 +1,14 @@
+name: Release API client nuget
+on:
+  push:
+    tags: "client-*"
+
+jobs:
+  client:
+    uses: MyJetWallet/DevOps/.github/workflows/client.yml@master
+    with:
+      repository_name: ${{ github.event.repository.name }}
+      release_version: ${GITHUB_REF#refs/tags/client-}
+    secrets: 
+      NUGET_TOCKEN: ${{ secrets.NUGET_TOCKEN }}
+      NUGET_AUTH_TOKEN: ${{ secrets.NUGET_AUTH_TOKEN }}
