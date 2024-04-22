@@ -1,4 +1,5 @@
 ﻿using System;
+using AspNetCore.Proxy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,8 @@ namespace Service.Wallet.ApiProxyTrace
         public void ConfigureServices(IServiceCollection services)
         {
             services.ConfigureJetWallet<ApplicationLifetimeManager>(Program.Settings.ZipkinUrl);
+            
+            services.AddProxies();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -26,7 +29,8 @@ namespace Service.Wallet.ApiProxyTrace
             };
                 
             app.UseMiddleware<ApiTraceMiddleware>();
-            app.UseMiddleware<ProxyMiddleware>();
+            //app.UseMiddleware<ProxyMiddleware>();
+            app.RunProxy(proxy => proxy.UseHttp(Program.Settings.ProxyHost));
             Console.WriteLine("API Trace is Enabled");
         }
 
