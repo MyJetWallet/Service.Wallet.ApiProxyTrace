@@ -50,7 +50,7 @@ namespace Service.Wallet.ApiProxyTrace
             try
             {
                 Settings = SettingsReader.GetSettings<SettingsModel>(SettingsFileName);
-                Settings.ProxyHost = "https://simple.app";
+                //Settings.ProxyHost = "https://simple.app";
                 settingsExist = !string.IsNullOrEmpty(Settings?.TraceIndexPrefix);
             }
             catch (Exception)
