@@ -10,7 +10,7 @@
     <PackageReference Include="AspNetCore.Proxy" Version="4.5.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.63.0" />
-    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="MyJetWallet.Sdk.GrpcMetrics" Version="2.4.1" />
